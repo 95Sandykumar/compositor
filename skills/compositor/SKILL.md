@@ -27,7 +27,11 @@ Requires Python 3.10+ with Pillow and numpy (`pip install pillow numpy`).
 | Step | Tool | What it owns |
 |------|------|--------------|
 | 1. Generate | `nano-banana` skill, or Nano Banana Pro via Higgsfield | Imagery only. Subject, style, lighting, composition |
+| 1b. Generative fill | Gemini 2.5 Flash Image via `nano-banana` | Inpaint, content-aware fill, background removal, extending past an edge |
 | 2. Edit | **this skill** | Text, layout, layering, masks, effects, crop, colour, export |
+
+Generative fill comes back here for placement. The model invents pixels; this
+skill decides where they sit.
 
 **Never ask an image model to render text.** It will misspell it, and a
 reference image's own text overrides the prompt (a Crown & Canvas reference

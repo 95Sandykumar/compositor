@@ -140,9 +140,9 @@ project renders identically on every run.
 
 | Not supported | Use instead |
 |---------------|-------------|
-| Generating imagery from a prompt | Any image model |
-| Inpainting, content-aware fill, extending past the edges | A generative model |
-| Background removal by subject detection | A segmentation model |
+| Generating imagery from a prompt | Any image model. Pairs cleanly with Gemini 2.5 Flash Image ("Nano Banana") |
+| Inpainting, content-aware fill, extending past the edges | A generative model. Generate the fill, then bring the result back here to place and composite |
+| Background removal by subject detection | A segmentation or generative model |
 | Complex-script shaping and font pair kerning | Needs Pillow built with raqm; set `tracking` explicitly for Latin display type |
 | PSD read or write | Not implemented |
 
