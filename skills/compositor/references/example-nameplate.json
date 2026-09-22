@@ -1,0 +1,74 @@
+{
+  "_comment": "Worked example: a framed portrait plate. Copy it, swap src and text. Render with: python compositor.py render example-nameplate.json -o out.png",
+
+  "canvas": { "width": 1200, "height": 1500, "background": "#0b1d3a", "dpi": 300 },
+
+  "layers": [
+    {
+      "name": "backdrop",
+      "type": "gradient",
+      "angle": 90,
+      "stops": [[0.0, "#1a2c4e"], [1.0, "#060d1c"]]
+    },
+    {
+      "name": "portrait",
+      "type": "image",
+      "src": "REPLACE-WITH-ABSOLUTE-PATH.jpg",
+      "x": 100,
+      "y": 110,
+      "width": 1000,
+      "height": 1000,
+      "fit": "cover",
+      "adjust": { "contrast": 1.06, "saturation": 1.04, "grain": 3 },
+      "mask": {
+        "shape": { "type": "rect", "box": [100, 110, 1000, 1000], "radius": 18 },
+        "feather": 1.5
+      },
+      "effects": [
+        { "type": "shadow", "dx": 0, "dy": 16, "blur": 40, "color": "#00000099" },
+        { "type": "stroke", "width": 5, "color": "#c8a04d" }
+      ]
+    },
+    {
+      "name": "gold rule",
+      "type": "rect",
+      "box": [480, 1188, 240, 2],
+      "fill": "#c8a04d"
+    },
+    {
+      "name": "nameplate",
+      "type": "text",
+      "text": "AUGUSTA",
+      "font": "georgia-bold",
+      "size": 88,
+      "color": "#f5f0e6",
+      "x": 600,
+      "y": 1240,
+      "anchor": "mt",
+      "tracking": 14,
+      "effects": [
+        { "type": "shadow", "dx": 0, "dy": 5, "blur": 18, "color": "#000000aa" }
+      ]
+    },
+    {
+      "name": "subtitle",
+      "type": "text",
+      "text": "Golden Retriever  ·  Est. 2019",
+      "font": "georgia-italic",
+      "size": 34,
+      "color": "#c8a04d",
+      "box": [200, 1352, 800, 60],
+      "align": "center",
+      "valign": "t"
+    },
+    {
+      "name": "bottom fade",
+      "type": "gradient",
+      "box": [0, 1380, 1200, 120],
+      "angle": 90,
+      "stops": [[0.0, "#00000000"], [1.0, "#000000cc"]],
+      "blend": "multiply",
+      "opacity": 0.85
+    }
+  ]
+}

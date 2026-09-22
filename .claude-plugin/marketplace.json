@@ -1,0 +1,16 @@
+{
+  "name": "compositor",
+  "metadata": {
+    "description": "A headless layered image editor for coding agents. Deterministic text placement, compositing, masks, layer effects, blend modes and colour adjustment from a JSON project file. The editing half of an image workflow, so a generation model never has to render text."
+  },
+  "owner": {
+    "name": "Sandeep Kumar",
+    "url": "https://github.com/95Sandykumar"
+  },
+  "plugins": [
+    {
+      "name": "compositor",
+      "source": "./"
+    }
+  ]
+}
