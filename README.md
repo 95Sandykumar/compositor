@@ -46,6 +46,11 @@ pip install pillow numpy
 
 Works on Windows, macOS and Linux. No system packages, no ImageMagick, no GUI.
 
+Optional, for `retouch.py` (click-to-mask, heal, paste-back): `pip install onnxruntime`.
+The two models (SAM ViT-B from `Xenova/sam-vit-base`, LaMa from `Carve/LaMa-ONNX`,
+both Apache-2.0) download once into `~/.cache/compositor/models`, about 580 MB.
+No torch, CPU only.
+
 ## Quickstart
 
 ```bash
@@ -120,6 +125,15 @@ Full schema in
 | `fonts` | List every resolvable font on the machine |
 | `proof` | Contact sheet with an optional pixel-coordinate grid |
 
+`retouch.py`, for revisions to an approved image:
+
+| Command | What it does |
+|---------|--------------|
+| `console` | Writes an HTML page: click the area to change, copy the points |
+| `mask` | Clicks to a mask PNG with Segment Anything, plus an overlay to check it |
+| `heal` | Removes what is under a mask (text, a tag, a speck) with LaMa |
+| `pasteback` | Puts a model's edit back through a mask and fails unless every pixel outside it is unchanged |
+
 ## What it supports
 
 | Area | Detail |
@@ -141,8 +155,7 @@ project renders identically on every run.
 | Not supported | Use instead |
 |---------------|-------------|
 | Generating imagery from a prompt | Any image model. Pairs cleanly with Gemini 2.5 Flash Image ("Nano Banana") |
-| Inpainting, content-aware fill, extending past the edges | A generative model. Generate the fill, then bring the result back here to place and composite |
-| Background removal by subject detection | A segmentation or generative model |
+| New content: a changed face, a new pose, extending past the edges | A generative model. Mask with `retouch.py mask`, edit, then `retouch.py pasteback` |
 | Complex-script shaping and font pair kerning | Needs Pillow built with raqm; set `tracking` explicitly for Latin display type |
 | PSD read or write | Not implemented |
 

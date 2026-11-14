@@ -1,2 +1,4 @@
 pillow>=10.0
 numpy>=1.24
+# optional, for retouch.py
+# onnxruntime>=1.17

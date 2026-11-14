@@ -1,6 +1,6 @@
 ---
 name: compositor
-description: REQUIRED for all image EDITING, compositing and text placement — everything beyond generation. Use whenever text, a name, a nameplate, a caption, a headline, a price, a logo, a watermark or a badge goes onto an image; whenever two or more images are combined, layered, masked or framed; and for crop, resize, canvas resize, rotate, flip, blend modes, drop shadows, strokes, glows, gradients, borders, background colour, tone/colour adjustment, and export to PNG/JPG/WebP. Also use to inspect an image or to build a proof sheet before calling any visual work done. Do NOT use to create new imagery from a prompt — that is nano-banana. Generate first, then edit here.
+description: Use for all image editing, compositing and text placement, everything beyond generation. Use whenever text, a name, a nameplate, a caption, a headline, a price, a logo, a watermark or a badge goes onto an image; whenever two or more images are combined, layered, masked or framed; and for crop, resize, canvas resize, rotate, flip, blend modes, drop shadows, strokes, glows, gradients, borders, background colour, tone/colour adjustment, and export to PNG/JPG/WebP. Also use for customer revision edits: making a mask by clicking the area (Segment Anything), removing text, tags or specks from an approved image (LaMa heal), and pasting a model's edit back through a mask with proof that nothing else changed. Also use to inspect an image or to build a proof sheet before calling any visual work done. New imagery from a prompt is nano-banana's job. Generate first, then edit here.
 allowed-tools: Bash(python:*), Read, Write, Edit, Glob, Grep
 ---
 
@@ -27,11 +27,29 @@ Requires Python 3.10+ with Pillow and numpy (`pip install pillow numpy`).
 | Step | Tool | What it owns |
 |------|------|--------------|
 | 1. Generate | `nano-banana` skill, or Nano Banana Pro via Higgsfield | Imagery only. Subject, style, lighting, composition |
-| 1b. Generative fill | Gemini 2.5 Flash Image via `nano-banana` | Inpaint, content-aware fill, background removal, extending past an edge |
-| 2. Edit | **this skill** | Text, layout, layering, masks, effects, crop, colour, export |
+| 1b. Masked model edit | The project's chosen image edit model that accepts a mask (check the project's own rules for which one) | New pixels the image does not have: a changed face, a new pose, an added subject, extending past an edge |
+| 2. Edit | **this skill** (`compositor.py` + `retouch.py`) | Text, layout, layering, masks, removal, effects, crop, colour, export |
 
-Generative fill comes back here for placement. The model invents pixels; this
-skill decides where they sit.
+A model edit comes back here: `retouch.py pasteback` puts it through the mask
+so every pixel outside is identical to the approved file.
+
+## Pixels first (decide before any paid model call)
+
+A customer revision goes to a model only when it needs pixels the image does
+not have. Go down this table and stop at the first row that fits.
+
+| The ask | Do this | Model? |
+|---------|---------|--------|
+| A name, a date, a line of text, a plate | `text` or a project text layer | No |
+| Move, resize, flip, rotate, crop, fit to a print size | project layer numbers, `crop`, `canvas` | No |
+| Brighter, darker, warmer, more colour, sharper, black and white | `adjust` on the whole image or through a mask | No |
+| Background colour, halo, glow, vignette, gradient | click a background mask, then the recipes in [references/recipes.md](references/recipes.md) | No |
+| Remove something small: shirt text, a tag, a speck, a leash bit | `retouch.py mask`, then `retouch.py heal` | No |
+| Swap in a part that exists in another of the customer's pictures | `retouch.py mask` on both, `composite` with feather | No |
+| Change a face, eyes, mouth, pose, body size; add a new subject or object | `retouch.py mask`, model edit, then `retouch.py pasteback` | Yes |
+
+If a no-model row fails the full-size look, then move down to a model edit.
+Say which row you used.
 
 **Never ask an image model to render text.** It will misspell it, and a
 reference image's own text overrides the prompt (a Crown & Canvas reference
@@ -88,6 +106,34 @@ you check that a coordinate actually landed where you intended.
 | Dimensions, alpha, dpi | `inspect img.png --alpha-stats` |
 | Which fonts exist | `fonts georgia` |
 | Proof sheet | `proof a.png b.png -o proof.png --grid 200` |
+
+## Retouch: click-to-mask, heal, paste-back
+
+`retouch.py` sits beside `compositor.py`. It needs `onnxruntime`
+(`pip install onnxruntime`), not torch. Models download once into
+`~/.cache/compositor/models` (SAM ViT-B about 375 MB, LaMa about 208 MB, both
+Apache-2.0). Resolve it the same way: `RETOUCH="$(dirname "$SCRIPT")/retouch.py"`.
+
+| Step | Command | Notes |
+|------|---------|-------|
+| 1. Click page | `console approved.png -o clicks.html` | Open it, click the area (green), right-click what to leave out (red), Copy points. Send it to whoever must say where |
+| 2. Mask | `mask approved.png --points '<pasted JSON>' -o mask.png --grow 4` | Also takes `"x,y,1;x,y,0"`. Writes `mask-overlay.jpg`. First run on an image takes about 8 s, later clicks under 1 s (cached) |
+| 3a. Remove | `heal approved.png --mask mask.png -o healed.png` | LaMa fill at 512 px on a crop around the mask. A warning prints when the crop is so big the fill may look soft |
+| 3b. Model edit | send `approved.png` + `mask.png` to the edit model | Prompt only what changes inside the mask |
+| 4. Paste back | `pasteback approved.png model-out.png --mask mask.png -o final.png` | `--resize` if the model returned another size |
+
+`heal` and `pasteback` print `outside_changed` and fail unless it is 0. That
+number is the proof the customer's approved pixels are untouched; quote it.
+
+Mask tips:
+- One click on a thing usually gets the whole thing (an ear, a shirt, a dog).
+  Click 2 or 3 points along thin or long things (a line of lettering).
+- `--pick 0|1|2` chooses the small, middle or large mask SAM offers when
+  `best` takes too much or too little.
+- Masks for a new subject must cover the WHOLE subject plus `--grow`, or the
+  paste-back cuts it (a chin or a neck edge goes missing).
+- `--add old-mask.png` unions a new click with an earlier mask.
+- Look at the overlay full size before using a mask. Exit 0 is not proof.
 
 Batch one project over many values without editing the file:
 
