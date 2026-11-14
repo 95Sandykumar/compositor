@@ -1,7 +1,7 @@
 {
   "name": "compositor",
   "description": "Headless layered image editor for coding agents. Place text with exact glyphs and measured coordinates, composite and mask layers, apply drop shadows/strokes/glows, blend modes, levels and colour adjustment, crop, resize and export, all from a deterministic JSON project file. Pairs with any image generation model: generate the artwork, then edit it here instead of re-prompting.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "Sandeep Kumar",
     "url": "https://github.com/95Sandykumar"
